@@ -1,0 +1,78 @@
+<script setup lang="ts">
+  import { ref } from 'vue'
+  import { Field, Form, defineRule, type GenericObject } from 'vee-validate'
+  import { required } from "@vee-validate/rules";
+
+  defineRule("required", (value: string, params: string): boolean|string => {
+    if (required(value)) {
+      return true;
+    } else {
+      return `${params} can not be empty`;
+    }
+  });
+
+  defineRule("email", (value: string): boolean|string => {
+    let regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    if (regex.test(value)) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  const emailValue = ref("");
+
+  const onSubmit = (values: GenericObject) => {
+    alert(JSON.stringify(values, null, 2));
+  };
+
+</script>
+
+<template>
+  <v-app>
+    <v-sheet
+      class="pa-4"
+      width="540"
+      location="top left"
+    >
+      <Form
+        v-slot="{ meta, handleReset }"
+        @submit="onSubmit"
+      >
+        <Field
+          v-slot="{ errors, handleChange }"
+          name="email"
+          v-model="emailValue"
+          rules="required:Email|email"
+        >
+          <v-text-field
+            label="E-mail"
+            :model-value="emailValue"
+            @update:model-value="
+              (e: string) => handleChange(e, errors.length > 0)
+            "
+            @blur="handleChange"
+            :error-messages="errors"
+          ></v-text-field>
+        </Field>
+
+        <v-btn
+          class="me-4"
+          type="submit"
+          :disabled="!meta.valid"
+        >
+          submit
+        </v-btn>
+
+        <v-btn
+          @click="handleReset"
+        >
+          clear
+        </v-btn>
+      </Form>
+    </v-sheet>
+  </v-app>
+</template>
+
+<style scoped>
+</style>
